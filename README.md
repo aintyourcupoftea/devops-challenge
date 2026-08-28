@@ -113,13 +113,24 @@ tar xzf actions-runner.tar.gz
 Leave `./run.sh` running in a terminal during the demo — that's the "agent" that
 picks up the `deploy` job.
 
-**Important — GHCR package visibility:** the first time the workflow pushes an
-image, GitHub creates the package as **private** by default. Your kind node has
-no registry credentials, so `kubectl set image` will pull-fail
-(`ImagePullBackOff`) until you make the package public: on GitHub →
-your profile → Packages → `devops-challenge-backend` → Package settings →
-Change visibility → Public. Do this once, right after the first pipeline run,
-before you demo the rollout live.
+**Important — GHCR package auth:** the first time the workflow pushes an image,
+the package is private by default and your kind node has no registry
+credentials, so `kubectl set image` pull-fails (`ImagePullBackOff`). Rather
+than making the package public, the backend Deployment uses a real
+`imagePullSecret` (`ghcr-pull-secret`) so the cluster authenticates to pull —
+this is the actual production pattern for a private registry. One-time setup:
+
+```bash
+# read:packages-scoped PAT from https://github.com/settings/tokens/new
+kubectl create secret docker-registry ghcr-pull-secret \
+  --docker-server=ghcr.io \
+  --docker-username=<your-github-username> \
+  --docker-password=<YOUR_PAT> \
+  -n devops-challenge
+```
+
+`k8s/05-backend-deployment.yaml` already references it via
+`spec.template.spec.imagePullSecrets`.
 
 After that, any push to `backend/**` or `k8s/**` triggers a real build → push →
 rollout, visible live with:
