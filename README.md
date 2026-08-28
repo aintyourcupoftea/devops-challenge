@@ -132,6 +132,12 @@ kubectl create secret docker-registry ghcr-pull-secret \
 `k8s/05-backend-deployment.yaml` already references it via
 `spec.template.spec.imagePullSecrets`.
 
+**Also note — architecture mismatch:** GitHub-hosted runners are `amd64`; a
+`kind` cluster on Apple Silicon is `arm64`. The workflow builds both platforms
+(`docker/setup-qemu-action` + `platforms: linux/amd64,linux/arm64` on the
+build step) so the node can always find a matching image. Without this you'll
+see `no match for platform in manifest` on pull.
+
 After that, any push to `backend/**` or `k8s/**` triggers a real build → push →
 rollout, visible live with:
 
