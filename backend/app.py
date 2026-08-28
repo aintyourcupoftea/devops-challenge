@@ -121,7 +121,7 @@ def create_item():
     body = request.get_json(silent=True) or {}
     name = body.get("name")
     if not name:
-        return jsonify(error="name is required"), 400
+        return jsonify(error="Name is required"), 400
     try:
         conn = get_conn()
         with conn, conn.cursor() as cur:
