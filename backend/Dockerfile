@@ -1,14 +1,14 @@
-FROM node:20-alpine AS deps
+FROM python:3.12-slim AS deps
 WORKDIR /app
-COPY package.json ./
-RUN npm install --omit=dev
+COPY requirements.txt .
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
-FROM node:20-alpine
+FROM python:3.12-slim
 WORKDIR /app
-ENV NODE_ENV=production
-RUN addgroup -S app && adduser -S app -G app
-COPY --from=deps /app/node_modules ./node_modules
-COPY package.json server.js ./
+ENV PYTHONUNBUFFERED=1
+RUN useradd -r -s /bin/false app
+COPY --from=deps /install /usr/local
+COPY app.py ./
 USER app
 EXPOSE 3000
-CMD ["node", "server.js"]
+CMD ["gunicorn", "--workers", "1", "--threads", "4", "--bind", "0.0.0.0:3000", "--access-logfile", "-", "app:app"]

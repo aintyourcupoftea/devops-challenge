@@ -1,13 +1,13 @@
 # DevOps Challenge — minimal production-style stack
 
-Node/Express backend + Postgres, deployed to a local `kind` Kubernetes cluster,
+Python/Flask backend + Postgres, deployed to a local `kind` Kubernetes cluster,
 with a GitHub Actions CI/CD pipeline that builds the image, pushes it to
 GHCR, and rolls it out to the cluster via a self-hosted runner.
 
 ## Stack
 
-- **Backend**: [backend/server.js](backend/server.js) — Express API (`/items` GET/POST),
-  talks to Postgres via `pg`.
+- **Backend**: [backend/app.py](backend/app.py) — Flask API (`/items` GET/POST),
+  served by gunicorn, talks to Postgres via `psycopg2`.
 - **Database**: Postgres 16, `Deployment` + `PersistentVolumeClaim` (not a StatefulSet —
   simplified to one replica for this exercise, see tradeoffs below).
 - **Cluster**: `kind` (Kubernetes-in-Docker), config in [kind-config.yaml](kind-config.yaml).
@@ -49,7 +49,7 @@ unable to actually serve traffic because Postgres is unreachable.
 
 - `GET /healthz/live` — process-only check, never touches the DB. Backs the
   **liveness** probe. If this fails, Kubernetes kills and restarts the container —
-  appropriate because it means the Node event loop itself is wedged.
+  appropriate because it means the Python process itself is wedged.
 - `GET /healthz/ready` — runs `SELECT 1` against Postgres. Backs the
   **readiness** probe. If this fails, Kubernetes removes the pod from the
   Service's endpoints (no traffic sent to it) but does **not** restart it —

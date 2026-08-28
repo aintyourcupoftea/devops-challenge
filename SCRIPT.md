@@ -44,7 +44,7 @@ PersistentVolumeClaim, a NodePort service exposing the backend on 30080.
 Namespace-scoped, nothing shared with kube-system."
 
 Show CI/CD execution (push a trivial change, e.g. bump `APP_VERSION` in
-`k8s/05-backend-deployment.yaml` or a comment in `server.js`):
+`k8s/05-backend-deployment.yaml` or a comment in `app.py`):
 
 ```bash
 git add -A && git commit -m "demo: trigger pipeline"
@@ -74,7 +74,7 @@ and an actually automatic deploy."
   each 'node' as a Docker container — not a hosted abstraction. I picked
   kind over minikube mainly for speed and because its config file makes
   port-mapping into the cluster trivial for local demos."
-- "Deployment flow: Dockerfile builds a two-stage Node image, `kind load
+- "Deployment flow: Dockerfile builds a two-stage Python image, `kind load
   docker-image` gets it onto the cluster node without needing a registry for
   local dev; the CI pipeline instead pushes to GHCR so the deploy step pulls
   a real versioned image, same as it would against ECR or GCR in the cloud."
