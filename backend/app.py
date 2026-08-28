@@ -99,6 +99,23 @@ def list_items():
         return jsonify(error=str(err)), 500
 
 
+@app.get("/items/<int:item_id>")
+def get_item(item_id):
+    try:
+        conn = get_conn()
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT id, name, created_at FROM items WHERE id = %s", (item_id,)
+            )
+            row = cur.fetchone()
+        conn.close()
+        if row is None:
+            return jsonify(error="item not found"), 404
+        return jsonify(id=row[0], name=row[1], created_at=row[2].isoformat())
+    except Exception as err:
+        return jsonify(error=str(err)), 500
+
+
 @app.post("/items")
 def create_item():
     body = request.get_json(silent=True) or {}
