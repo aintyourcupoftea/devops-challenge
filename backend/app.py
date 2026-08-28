@@ -9,7 +9,8 @@ from flask import Flask, jsonify, request
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
 log = logging.getLogger(__name__)
 
-APP_VERSION = os.environ.get("APP_VERSION", "dev")
+# APP_VERSION = os.environ.get("APP_VERSION", "dev")
+APP_VERSION = 2
 PORT = int(os.environ.get("PORT", 3000))
 
 db_ready = False
